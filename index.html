@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIIT Interval Timer</title>
+    <meta name="description" content="A premium, dark-mode HIIT interval timer with audio cues.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1 id="workout-title">HIIT Timer</h1>
+            <p id="status-text">Setup your workout</p>
+        </header>
+
+        <main>
+            <div id="setup-view" class="view active">
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="work-time">Work (sec)</label>
+                        <div class="input-wrapper">
+                            <button type="button" class="btn-adjust" onclick="adjustValue('work-time', -5)">-</button>
+                            <input type="number" id="work-time" value="30" min="5" step="5">
+                            <button type="button" class="btn-adjust" onclick="adjustValue('work-time', 5)">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="rest-time">Rest (sec)</label>
+                        <div class="input-wrapper">
+                            <button type="button" class="btn-adjust" onclick="adjustValue('rest-time', -5)">-</button>
+                            <input type="number" id="rest-time" value="10" min="5" step="5">
+                            <button type="button" class="btn-adjust" onclick="adjustValue('rest-time', 5)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="control-group full-width">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label>Exercises</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" class="btn-adjust btn-sm" onclick="addExercise()">+</button>
+                                <button type="button" class="btn-adjust btn-sm" onclick="removeExercise()">-</button>
+                            </div>
+                        </div>
+                        <div id="exercises-list" class="exercises-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="routines-accordion">
+                    <button type="button" class="accordion-btn" onclick="toggleRoutines()">
+                        <span>Saved Routines</span>
+                        <span id="accordion-icon">▲</span>
+                    </button>
+                    <div id="routines-content" class="accordion-content">
+                        <div class="routine-actions">
+                            <select id="routine-select" class="routine-select">
+                                <option value="">-- Load Saved Routine --</option>
+                            </select>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="loadConfig()">LOAD</button>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="saveConfig()">SAVE</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteConfig()">DEL</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button id="start-btn" class="btn btn-primary" onclick="startWorkout()">START WORKOUT</button>
+                </div>
+            </div>
+
+            <div id="timer-view" class="view">
+                <div class="timer-container">
+                    <svg class="progress-ring" width="240" height="240">
+                        <circle class="progress-ring__circle-bg" stroke-width="12" fill="transparent" r="110" cx="120" cy="120" />
+                        <circle class="progress-ring__circle" stroke-width="12" fill="transparent" r="110" cx="120" cy="120" />
+                    </svg>
+                    <div class="timer-display">
+                        <span id="current-exercise">Exercise</span>
+                        <span id="time-left">00:00</span>
+                        <span id="interval-count">Interval 1/8</span>
+                        <span id="next-exercise" class="next-exercise-label">Next: ...</span>
+                    </div>
+                </div>
+                
+                <div class="action-row">
+                    <button id="prev-btn" class="btn btn-secondary btn-icon" onclick="prevInterval()">&#9664;&#9664;</button>
+                    <button id="pause-btn" class="btn btn-secondary" onclick="togglePause()">PAUSE</button>
+                    <button id="stop-btn" class="btn btn-danger" onclick="stopWorkout()">STOP</button>
+                    <button id="next-btn" class="btn btn-secondary btn-icon" onclick="nextInterval()">&#9654;&#9654;</button>
+                </div>
+            </div>
+            
+            <div id="done-view" class="view">
+                <div class="completion-message">
+                    <h2>Workout Complete!</h2>
+                    <p>Great job crushing those intervals.</p>
+                </div>
+                <div class="action-row">
+                    <button id="reset-btn" class="btn btn-primary" onclick="resetApp()">DO IT AGAIN</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
