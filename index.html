@@ -78,13 +78,15 @@
             </div>
 
             <div id="timer-view" class="view">
-                <div class="timer-container">
-                    <svg class="progress-ring" width="240" height="240">
-                        <circle class="progress-ring__circle-bg" stroke-width="12" fill="transparent" r="110" cx="120" cy="120" />
-                        <circle class="progress-ring__circle" stroke-width="12" fill="transparent" r="110" cx="120" cy="120" />
+                <div class="timer-header" style="text-align: center; margin-bottom: 1rem; margin-top: auto; padding: 0 1rem;">
+                    <h2 id="current-exercise">Exercise</h2>
+                </div>
+                <div class="timer-container" style="margin-top: 0;">
+                    <svg class="progress-ring" width="340" height="340">
+                        <circle class="progress-ring__circle-bg" stroke-width="12" fill="transparent" r="158" cx="170" cy="170" />
+                        <circle class="progress-ring__circle" stroke-width="12" fill="transparent" r="158" cx="170" cy="170" />
                     </svg>
                     <div class="timer-display">
-                        <span id="current-exercise">Exercise</span>
                         <span id="time-left">00:00</span>
                         <span id="interval-count">Interval 1/8</span>
                         <span id="next-exercise" class="next-exercise-label">Next: ...</span>

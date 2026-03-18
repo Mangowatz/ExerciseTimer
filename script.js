@@ -47,6 +47,30 @@ function playWorkoutComplete() {
 }
 
 
+// Wake Lock API
+let wakeLock = null;
+
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                console.log('Screen Wake Lock released');
+            });
+        }
+    } catch (err) {
+        console.error('Wake Lock error:', err.name, err.message);
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release().then(() => {
+            wakeLock = null;
+        });
+    }
+}
+
 // App State
 let config = {
     workTime: 30,
@@ -143,12 +167,66 @@ function renderExercises() {
     config.exercises.forEach((ex, index) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'exercise-input-wrapper';
+        wrapper.draggable = true;
+        wrapper.dataset.index = index;
+        
+        wrapper.addEventListener('dragstart', handleDragStart);
+        wrapper.addEventListener('dragover', handleDragOver);
+        wrapper.addEventListener('drop', handleDrop);
+        wrapper.addEventListener('dragend', handleDragEnd);
+
         wrapper.innerHTML = `
+            <span class="drag-handle">☰</span>
             <span class="exercise-number">${index + 1}.</span>
             <input type="text" class="list-input" value="${ex}" placeholder="Exercise ${index + 1}" onchange="updateExercise(${index}, this.value)">
         `;
         exercisesListEl.appendChild(wrapper);
     });
+}
+
+let dragStartIndex = null;
+
+function handleDragStart(e) {
+    dragStartIndex = +e.currentTarget.dataset.index;
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    const draggingElement = document.querySelector('.exercise-input-wrapper.dragging');
+    if (!draggingElement) return;
+    
+    const overElement = e.currentTarget;
+    if (draggingElement === overElement) return;
+
+    const bounding = overElement.getBoundingClientRect();
+    const offset = e.clientY - bounding.top;
+    
+    if (offset > bounding.height / 2) {
+        overElement.after(draggingElement);
+    } else {
+        overElement.before(draggingElement);
+    }
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    // Reordering handled dynamically in handleDragOver
+}
+
+function handleDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    dragStartIndex = null;
+    
+    // Update config.exercises based on new DOM order
+    const inputs = [...exercisesListEl.querySelectorAll('.list-input')];
+    config.exercises = inputs.map(input => input.value);
+    
+    // Re-render to correctly reassign sequence numbers and DOM event state
+    renderExercises();
 }
 
 function updateExercise(index, value) {
@@ -262,6 +340,7 @@ function deleteConfig() {
 
 function startWorkout() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    requestWakeLock();
     
     // Read config
     config.workTime = parseInt(inputs.work.value);
@@ -297,10 +376,10 @@ function startPhase(phase, timeOverride = null) {
     
     if (phase === 'prepare' || phase === 'work') {
         display.currentExercise.textContent = currentEx;
-        display.nextExercise.textContent = `Next: ${nextEx}`;
+        display.nextExercise.textContent = "";
     } else if (phase === 'rest') {
         display.currentExercise.textContent = "Rest";
-        display.nextExercise.textContent = `Up Next: ${currentEx}`; // currentEx is about to start
+        display.nextExercise.textContent = `Up Next: ${nextEx}`;
     }
     
     display.intervalCount.textContent = `Interval ${state.currentInterval}/${config.exercises.length}`;
@@ -402,6 +481,7 @@ function stopWorkout() {
     clearInterval(state.timerId);
     state.isPaused = false;
     display.pauseBtn.textContent = "PAUSE";
+    releaseWakeLock();
     resetApp();
 }
 
@@ -409,6 +489,7 @@ function finishWorkout() {
     clearInterval(state.timerId);
     display.statusText.textContent = "DONE";
     display.statusText.className = '';
+    releaseWakeLock();
     switchView('done');
     document.documentElement.style.setProperty('--accent-primary', '#00f0ff');
 }

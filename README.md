@@ -1,5 +1,7 @@
 # HIIT Interval Timer
 
+**This is my first vibe-coded project made with Gemini 3.1 in antigravity!**
+
 A premium, highly-customizable High-Intensity Interval Training (HIIT) timer built entirely with Vanilla HTML, CSS, and JavaScript. Zero dependencies, no build steps required—just open `index.html` in your browser.
 
 ## Features
